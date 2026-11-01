@@ -1,0 +1,476 @@
+/* StokOpname "Depo 32" — papan keberangkatan stasiun Swiss untuk sebuah depo gudang.
+   Seed 2026-11-14: dark/triadic hue 32, bento asimetris dipotong, miring 3-8deg,
+   hand-drawn goyang, Esteban / Catamaran / Playwrite DE Grund Guides. */
+
+@layer depo {
+  :root {
+    --rail: repeating-linear-gradient(
+      -4deg,
+      transparent 0 14px,
+      oklch(0.32 0.05 32 / 0.55) 14px 16px
+    );
+  }
+
+  html { background: var(--bg); overflow-x: clip; }
+
+  @media (max-width: 560px) {
+    .kicker { letter-spacing: 0.14em; font-size: 0.72rem; }
+    .station-sign .sub { display: none; }
+    .station-sign { font-size: 0.95rem; }
+    .flip-clock { font-size: 0.95rem; padding: 0.25rem 0.45rem; }
+    .station-bar .wrap { gap: 0.6rem; }
+  }
+
+  body.depo {
+    background:
+      radial-gradient(1200px 500px at 80% -10%, oklch(0.2 0.05 32), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--aw-font-sans);
+    overflow-x: clip;
+    min-height: 100dvh;
+  }
+
+  /* film grain halus — tekstur depo malam */
+  body.depo::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  }
+
+  .wrap { width: min(1200px, 100% - 2rem); margin-inline: auto; }
+
+  .skip {
+    position: fixed; top: -5rem; left: 1rem; z-index: 100;
+    background: var(--pop); color: #06181a; font-weight: 700;
+    padding: 0.75rem 1rem; border-radius: 4px; transition: top 0.2s var(--ease-out);
+  }
+  .skip:focus { top: 1rem; }
+
+  /* ---- papan nama stasiun (top bar) ---- */
+  .station-bar {
+    position: sticky; top: 0; z-index: 50;
+    background: oklch(0.12 0.05 32 / 0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 2px solid var(--line);
+  }
+  .station-bar .wrap {
+    display: flex; align-items: center; gap: 1rem;
+    padding-block: 0.6rem;
+  }
+  .station-sign {
+    font-family: var(--aw-font-heading);
+    font-size: 1.05rem; letter-spacing: 0.02em;
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-right: auto; white-space: nowrap;
+  }
+  .station-sign .dot {
+    width: 0.65em; height: 0.65em; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    animation: blink 2.4s infinite;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  .flip-clock {
+    display: flex; gap: 0.25rem; align-items: center;
+    min-height: 44px;
+    font-family: var(--aw-font-heading); font-size: 1.1rem;
+    background: #0a0a0a; border: 1px solid var(--line);
+    padding: 0.3rem 0.55rem; border-radius: 4px;
+    cursor: pointer; user-select: none; color: var(--text);
+  }
+  .flip-clock .sep { animation: blink 1s steps(1) infinite; color: var(--pop); }
+
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 44px; min-height: 44px; border-radius: 6px;
+    border: 1px solid var(--line); background: var(--surface);
+    color: var(--text); cursor: pointer;
+    transition: transform 0.15s var(--ease-out), border-color 0.15s;
+  }
+  .icon-btn:hover { transform: translateY(-1px); border-color: var(--pop); }
+  .icon-btn:active { transform: scale(0.96); }
+  .icon-btn svg { width: 22px; height: 22px; }
+  .icon-btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
+  /* ---- gerbang: teks pintu raksasa ---- */
+  .gate {
+    min-height: 108dvh;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative; overflow: clip;
+  }
+  .gate-word {
+    font-family: var(--aw-font-heading);
+    font-size: clamp(4.5rem, 22vw, 19rem);
+    line-height: 0.85; letter-spacing: -0.02em;
+    text-align: center; margin: 0;
+    white-space: nowrap;
+    transform-origin: 50% 60%;
+    will-change: transform;
+    animation: gateIn 0.9s var(--ease-out) both;
+  }
+  /* entrance: clip-path (tidak menggeser layout) sebagai ganti scramble di hero */
+  @keyframes gateIn {
+    from { opacity: 0; clip-path: inset(0 0 100% 0); }
+    to { opacity: 1; clip-path: inset(0 0 0 0); }
+  }
+  .gate-word .num { color: var(--accent); }
+  .gate-sub {
+    text-align: center; color: var(--muted); margin-top: 1.25rem;
+    font-size: clamp(1rem, 2.4vw, 1.25rem);
+  }
+  .gate-sub .hand {
+    font-family: var(--font-playwrite, cursive);
+    color: var(--pop); display: inline-block; transform: rotate(-4deg);
+  }
+  .gate-cue {
+    position: absolute; bottom: 2.5rem; left: 50%; translate: -50% 0;
+    color: var(--muted); font-size: 0.9rem; text-align: center;
+  }
+  .gate-cue .arrow {
+    display: block; font-size: 1.6rem; color: var(--accent);
+    animation: bob 1.6s var(--ease-out) infinite;
+  }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
+
+  /* ---- marquee pengumuman peron ---- */
+  .peron { border-block: 2px solid var(--line); background: var(--surface); overflow: clip; }
+  .peron + .peron { border-top: 0; }
+  .marquee-band {
+    display: flex; width: max-content; will-change: transform;
+    cursor: grab; touch-action: pan-y;
+  }
+  .marquee-band:active { cursor: grabbing; }
+  .mq-chunk {
+    display: flex; align-items: center; gap: 2.5rem;
+    padding: 0.7rem 1.25rem; white-space: nowrap;
+    font-size: 1rem; color: var(--text);
+  }
+  .mq-chunk svg { width: 20px; height: 20px; color: var(--accent); flex: none; }
+  .mq-chunk .t { color: var(--muted); }
+  .peron.rev .marquee-band { flex-direction: row-reverse; }
+  .peron.rev { background: oklch(0.17 0.05 32); }
+
+  /* ---- divider rel ---- */
+  .rail-wrap { overflow: clip; padding-block: 2px; }
+  .rail-div {
+    height: 26px; margin-block: 0;
+    background: var(--rail);
+    border-block: 1px solid var(--line);
+    transform: rotate(-1.2deg) scale(1.03);
+  }
+
+  /* ---- papan keberangkatan ---- */
+  .board-head { padding-top: 3.5rem; }
+  .kicker {
+    display: inline-block; font-size: 0.8rem; letter-spacing: 0.28em;
+    color: var(--pop); border: 1px solid var(--line);
+    padding: 0.35rem 0.8rem; border-radius: 999px;
+    transform: rotate(-3deg); background: var(--surface);
+  }
+  h1.board-title, h2.section-title {
+    font-family: var(--aw-font-heading);
+    font-size: clamp(2.2rem, 7vw, 4.5rem);
+    line-height: 1.05; margin: 1rem 0 0.5rem; letter-spacing: -0.01em;
+    white-space: nowrap; /* cegah wrap saat scramble → CLS */
+  }
+  h2.section-title { font-size: clamp(1.8rem, 5vw, 3rem); }
+  .lede { color: var(--muted); max-width: 60ch; }
+
+  .board-tools {
+    display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
+    margin: 1.5rem 0 1rem;
+  }
+  .field {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 6px; padding: 0 0.8rem; min-height: 44px;
+  }
+  .field svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
+  .field input, .field select {
+    background: transparent; border: 0; color: var(--text);
+    font: inherit; font-size: 16px; min-height: 44px; width: 100%;
+  }
+  .field input:focus, .field select:focus { outline: none; }
+  .field:focus-within { border-color: var(--pop); }
+  .field.search { flex: 1 1 220px; }
+  .field select option { background: var(--surface); color: var(--text); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    min-height: 44px; padding: 0 1.1rem; border-radius: 6px;
+    font: inherit; font-weight: 700; cursor: pointer; border: 1px solid transparent;
+    transition: transform 0.15s var(--ease-out), box-shadow 0.15s, background 0.15s;
+  }
+  .btn svg { width: 18px; height: 18px; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px oklch(0.6 0.266 152 / 0.35); }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-ghost { background: var(--surface); color: var(--text); border-color: var(--line); }
+  .btn-ghost:hover { border-color: var(--pop); transform: translateY(-1px); }
+  .btn-ghost:active { transform: scale(0.97); }
+  .btn-danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+
+  /* bento asimetris: beberapa kartu sengaja kepotong tepi */
+  .bento {
+    display: grid; gap: 1rem;
+    grid-template-columns: repeat(12, 1fr);
+    padding-bottom: 1rem;
+    min-height: 320px; /* redam CLS saat kartu diinjeksi JS */
+  }
+  .gerbong {
+    grid-column: span 12;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.1rem 1.1rem 1rem;
+    position: relative;
+    transition: transform 0.2s var(--ease-out), border-color 0.2s;
+    contain: layout paint;
+  }
+  @media (min-width: 700px) {
+    .gerbong { grid-column: span 6; }
+    .gerbong:nth-child(3n+2) { transform: rotate(1.6deg); }
+    .gerbong:nth-child(3n) { transform: rotate(-1.4deg) translateY(6px); }
+    .gerbong.cut { grid-column: 7 / span 6; }
+  }
+  @media (min-width: 1080px) {
+    .gerbong { grid-column: span 4; }
+    .gerbong:nth-child(4n+3) { grid-column: span 5; }
+  }
+  .gerbong:hover { border-color: var(--pop); }
+  .gerbong-top { display: flex; align-items: baseline; gap: 0.7rem; }
+  .gerbong-no {
+    font-family: var(--aw-font-heading); font-size: 0.85rem; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 4px; padding: 0.15rem 0.5rem;
+    letter-spacing: 0.12em; white-space: nowrap;
+  }
+  .gerbong-name {
+    font-family: var(--aw-font-heading); font-size: 1.35rem; margin: 0;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .gerbong-actions { margin-left: auto; display: flex; gap: 0.35rem; }
+  .mini-btn {
+    width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px; border: 1px solid transparent; background: transparent;
+    color: var(--muted); cursor: pointer;
+  }
+  .mini-btn:hover { color: var(--text); border-color: var(--line); }
+  .mini-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
+  .mini-btn svg { width: 17px; height: 17px; }
+
+  .status-tape {
+    position: absolute; top: -0.7rem; right: 1rem;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em;
+    padding: 0.3rem 0.7rem; border-radius: 3px;
+    transform: rotate(4deg);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.4);
+  }
+  .status-tape.cocok { background: var(--accent); color: var(--accent-ink); }
+  .status-tape.selisih { background: var(--accent-2); color: #fff; }
+  .status-tape.menipis { background: var(--pop); color: #06181a; transform: rotate(-5deg); }
+  .status-tape.habis { background: var(--danger); color: #fff; transform: rotate(6deg); }
+
+  .gerbong-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 0.9rem;
+  }
+  .cell label {
+    display: block; font-size: 0.72rem; letter-spacing: 0.14em; color: var(--muted);
+    margin-bottom: 0.25rem;
+  }
+  .cell output, .cell .val {
+    font-family: var(--aw-font-heading); font-size: 1.5rem; display: block;
+  }
+  .cell input {
+    width: 100%; background: oklch(0.12 0.05 32); border: 1px solid var(--line);
+    border-radius: 6px; color: var(--text); font: inherit; font-size: 16px;
+    padding: 0.5rem 0.6rem; min-height: 44px;
+  }
+  .cell input:focus { outline: none; border-color: var(--pop); }
+  .cell input.invalid { border-color: var(--danger); animation: shake 0.35s; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-2px); }
+  }
+  .selisih-row {
+    grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between;
+    border-top: 1px dashed var(--line); margin-top: 0.4rem; padding-top: 0.7rem;
+  }
+  .selisih-num { font-family: var(--aw-font-heading); font-size: 1.9rem; font-variant-numeric: tabular-nums; }
+  .stat .v { font-variant-numeric: tabular-nums; }
+  .flip-clock { font-variant-numeric: tabular-nums; }
+  .selisih-num.neg { color: var(--accent-2); }
+  .selisih-num.pos { color: var(--accent); }
+  .selisih-num.zero { color: var(--muted); }
+  .hand-note {
+    font-family: var(--font-playwrite, cursive); color: var(--pop);
+    font-size: 0.95rem; transform: rotate(-2deg); display: inline-block;
+  }
+
+  .empty-depo {
+    grid-column: 1 / -1; text-align: center; padding: 3.5rem 1rem;
+    border: 2px dashed var(--line); border-radius: 12px; color: var(--muted);
+  }
+  .empty-depo svg { width: 54px; height: 54px; color: var(--line); margin-bottom: 0.8rem; }
+  .empty-depo p { max-width: 44ch; margin: 0.5rem auto 1.2rem; }
+
+  /* ikon hand-drawn: goyang via feTurbulence (seed).
+     Dikecualikan .mq-chunk: filter hidup di dalam marquee yang bergerak
+     memaksa repaint tiap frame (temuan: 1581ms main-thread). Path SVG-nya
+     sendiri sudah digambar goyang, jadi tetap terbaca hand-drawn. */
+  .field svg, .btn svg, .empty-depo svg { filter: url(#goyang); }
+
+  /* glow LED ala papan stasiun pada angka penting */
+  .selisih-num.pos { text-shadow: 0 0 24px oklch(0.6 0.266 152 / 0.5); }
+  .selisih-num.neg { text-shadow: 0 0 24px oklch(0.58 0.235 272 / 0.55); }
+  .flip-clock { text-shadow: 0 0 14px oklch(0.85 0.236 188 / 0.35); }
+
+  /* stepper hitung cepat (temuan riset Inveck) */
+  .stepper { display: flex; gap: 0.4rem; align-items: stretch; }
+  .stepper input { flex: 1; min-width: 0; }
+  .step-btn {
+    min-width: 44px; min-height: 44px; border-radius: 6px; flex: none;
+    border: 1px solid var(--line); background: oklch(0.12 0.05 32);
+    color: var(--text); font-size: 1.35rem; line-height: 1; cursor: pointer;
+    transition: transform 0.1s var(--ease-out), background 0.1s;
+  }
+  .step-btn:hover { border-color: var(--pop); }
+  .step-btn:active { transform: scale(0.92); background: var(--accent); color: var(--accent-ink); }
+
+  /* ---- meja mandor (ringkasan) ---- */
+  .desk { padding-block: 3.5rem 4rem; }
+  .desk-grid {
+    display: grid; gap: 1rem; margin-top: 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 800px) { .desk-grid { grid-template-columns: repeat(4, 1fr); } }
+  .stat {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 1.1rem; position: relative; overflow: clip;
+  }
+  .stat:nth-child(odd) { transform: rotate(-1.2deg); }
+  .stat:nth-child(even) { transform: rotate(1.1deg); }
+  .stat .k { font-size: 0.72rem; letter-spacing: 0.18em; color: var(--muted); }
+  .stat .v { font-family: var(--aw-font-heading); font-size: clamp(1.7rem, 4vw, 2.6rem); margin-top: 0.3rem; }
+  .stat .v.good { color: var(--accent); }
+  .stat .v.warn { color: var(--pop); }
+  .stat .v.bad { color: var(--accent-2); }
+  .desk-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.5rem; }
+
+  /* ---- stempel ---- */
+  .stamp-layer {
+    position: fixed; inset: 0; z-index: 80; display: grid; place-items: center;
+    background: oklch(0.1 0.05 32 / 0.72); backdrop-filter: blur(3px);
+  }
+  .stamp-layer[hidden] { display: none; }
+  .stamp {
+    font-family: var(--aw-font-heading);
+    font-size: clamp(3rem, 14vw, 8rem);
+    border: 0.09em solid currentColor; border-radius: 0.12em;
+    padding: 0.1em 0.35em; transform: rotate(-8deg);
+    clip-path: circle(0% at 50% 50%);
+    transition: clip-path 0.45s var(--ease-spring);
+    background: oklch(0.12 0.05 32 / 0.6);
+  }
+  .stamp-layer.show .stamp { clip-path: circle(75% at 50% 50%); }
+  .stamp.cocok { color: var(--accent); }
+  .stamp.selisih { color: var(--accent-2); }
+  .stamp-sub {
+    text-align: center; color: var(--text); margin-top: 1.2rem; font-size: 1.1rem;
+    font-family: var(--font-playwrite, cursive); transform: rotate(-2deg);
+  }
+
+  /* ---- dialog tambah gerbong ---- */
+  dialog.gerbong-dialog {
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: 0; width: min(520px, calc(100vw - 2rem));
+  }
+  dialog.gerbong-dialog::backdrop { background: oklch(0.1 0.05 32 / 0.7); backdrop-filter: blur(3px); }
+  .dlg-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.25rem; border-bottom: 1px solid var(--line);
+  }
+  .dlg-head h3 { font-family: var(--aw-font-heading); font-size: 1.3rem; margin: 0; }
+  .dlg-body { padding: 1.25rem; display: grid; gap: 0.9rem; grid-template-columns: 1fr 1fr; }
+  .dlg-body .full { grid-column: 1 / -1; }
+  .dlg-foot { display: flex; gap: 0.6rem; justify-content: flex-end; padding: 1rem 1.25rem; border-top: 1px solid var(--line); }
+  .form-err {
+    grid-column: 1 / -1; color: var(--danger); font-size: 0.9rem;
+    border: 1px solid var(--danger); border-radius: 6px; padding: 0.6rem 0.8rem;
+    background: oklch(0.62 0.24 25 / 0.08);
+  }
+  .form-err[hidden] { display: none; }
+
+  /* ---- riwayat ---- */
+  .riwayat-list { display: grid; gap: 0.7rem; margin-top: 1.2rem; }
+  .riwayat-item {
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 0.8rem 1rem;
+  }
+  .riwayat-item .t { font-family: var(--aw-font-heading); font-size: 1.05rem; }
+  .riwayat-item .m { color: var(--muted); font-size: 0.85rem; }
+  .riwayat-item .spacer { flex: 1; }
+
+  /* ---- toast ---- */
+  .toasts {
+    position: fixed; bottom: 1rem; left: 50%; translate: -50% 0; z-index: 90;
+    display: flex; flex-direction: column; gap: 0.5rem; align-items: center;
+    width: min(480px, calc(100vw - 2rem));
+  }
+  .toast {
+    background: var(--surface-2); border: 1px solid var(--pop); color: var(--text);
+    border-radius: 8px; padding: 0.7rem 1rem; font-size: 0.95rem;
+    box-shadow: 0 8px 28px rgb(0 0 0 / 0.5);
+    transform: translateY(12px); opacity: 0;
+    transition: transform 0.25s var(--ease-spring), opacity 0.25s;
+    max-width: 100%;
+  }
+  .toast.in { transform: none; opacity: 1; }
+  .toast .hand { font-family: var(--font-playwrite, cursive); color: var(--pop); }
+
+  /* ---- footer papan nama ---- */
+  .depot-footer {
+    border-top: 2px solid var(--line); margin-top: 2rem;
+    padding: 2.2rem 0 3rem; color: var(--muted); font-size: 0.9rem;
+  }
+  .depot-footer .wrap { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; }
+  .depot-footer .hand { font-family: var(--font-playwrite, cursive); color: var(--pop); transform: rotate(-2deg); display: inline-block; }
+
+  /* ---- curtain wipe ---- */
+  .curtain {
+    position: fixed; inset: 0; z-index: 70; pointer-events: none;
+    background: var(--accent); transform: scaleY(0); transform-origin: top;
+  }
+
+  /* ---- gerak: off ---- */
+  .motion-off .marquee-band { animation: none !important; }
+  .motion-off .gate-word { transform: none !important; }
+
+  @media (max-width: 699px) {
+    /* sel fisik butuh ruang untuk stepper 2x44px */
+    .cell:has(.stepper) { grid-column: 1 / -1; }
+  }
+
+  /* ---- print: hanya laporan ---- */
+  @media print {
+    body.depo::before, .station-bar, .gate, .peron, .rail-div,
+    .board-tools, .desk-actions, .depot-footer, .toasts, .stamp-layer,
+    .skip, dialog { display: none !important; }
+    body.depo { background: #fff; color: #000; }
+    .gerbong { break-inside: avoid; border: 1px solid #000; background: #fff; color: #000; transform: none !important; }
+    .gerbong * { color: #000 !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-band { animation: none !important; }
+    .gate-word { transform: none !important; }
+    .station-sign .dot, .flip-clock .sep, .gate-cue .arrow { animation: none !important; }
+  }
+}

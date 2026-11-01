@@ -1,0 +1,40 @@
+site:
+  name: StokOpname — Depo 32
+  site: 'https://agent-tools-stokopname.vercel.app'
+  base: '/'
+  trailingSlash: false
+
+# Default SEO metadata
+metadata:
+  title:
+    default: StokOpname — Depo 32
+    template: '%s'
+  description: 'Stock opname warung & UMKM offline di browser: catat stok tercatat vs fisik, selisih & nilai selisih otomatis, peringatan stok menipis. Seluruhnya sebagai papan keberangkatan depo.'
+  robots:
+    index: true
+    follow: true
+  openGraph:
+    site_name: StokOpname — Depo 32
+    images:
+      - url: '/og-image.png'
+        width: 1200
+        height: 630
+    type: website
+  twitter:
+    cardType: summary_large_image
+
+i18n:
+  language: id
+  textDirection: ltr
+
+apps:
+  blog:
+    isEnabled: false
+
+analytics:
+  vendors:
+    googleAnalytics:
+      id: null
+
+ui:
+  theme: 'dark:only' # Seed: dark mode

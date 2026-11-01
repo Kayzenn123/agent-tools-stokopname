@@ -1,0 +1,229 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
+import { contohItems } from '../scripts/depo/store.js';
+import { cardHTML } from '../scripts/depo/cards.js';
+import '~/assets/styles/depo.css';
+
+// SSR kartu contoh (urutan sama dengan render client pertama: sort nama id-ID)
+// → HTML identik = nol layout shift saat JS hydrate.
+const ssrItems = contohItems().sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
+
+const metadata = {
+  title: 'StokOpname — Depo 32',
+  description:
+    'Stock opname warung & UMKM offline di browser: catat stok tercatat vs fisik, selisih & nilai selisih otomatis, peringatan stok menipis. Seluruhnya sebagai papan keberangkatan depo.',
+  openGraph: { images: [{ url: '/og-image.png', width: 1200, height: 630 }] },
+};
+
+const announcements = [
+  { icon: 'box', text: 'Perhatian: gerbong <b>Indomie Goreng</b> jalur 3 — stok menipis, segera restok', time: 'sekarang' },
+  { icon: 'warning-triangle', text: 'Gerbong <b>Telur Ayam</b> telat 2 kg dari jadwal. Periksa kolong rak.', time: '2 mnt' },
+  { icon: 'check-stamp', text: '<b>Beras 5kg</b> cocok 20/20. Mandor bangga.', time: '9 mnt' },
+  { icon: 'clock', text: 'Tutup buku depo pukul 21.00. Jangan sampai lembur.', time: 'info' },
+  { icon: 'truck', text: 'Gerbong baru <b>Garam Cap Kapal</b> masuk jalur 7.', time: '14 mnt' },
+];
+
+const announcements2 = [
+  { icon: 'warning-triangle', text: '<b>Aqua 600ml</b> selisih −2 dus. Cari di gudang B.', time: '4 mnt' },
+  { icon: 'check-stamp', text: '<b>Teh Botol Sosro</b> cocok 24/24.', time: '11 mnt' },
+  { icon: 'clipboard-check', text: 'Harga modal contoh — ubah sesuai notamu sendiri.', time: 'info' },
+  { icon: 'scale', text: 'Stok fisik dihitung manual, bukan dikira-kira.', time: 'info' },
+];
+---
+
+<Layout metadata={metadata}>
+  <a class="skip" href="#papan">Lompat ke papan opname</a>
+
+  <!-- filter goyang: garis hand-drawn untuk semua ikon depo -->
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+    <defs>
+      <filter id="goyang" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="7" result="n" />
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="1.2" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- papan nama stasiun -->
+  <header class="station-bar">
+    <div class="wrap">
+      <div class="station-sign"><span class="dot" aria-hidden="true"></span> DEPO 32 <span class="sub" style="color:var(--muted)">· GUDANG INDUK</span></div>
+      <button class="flip-clock" id="station-clock" aria-label="Jam stasiun. Ketuk lima kali untuk kejutan.">
+        <span data-hh>--</span><span class="sep">:</span><span data-mm>--</span><span class="sep">:</span><span data-ss>--</span>
+      </button>
+      <button class="icon-btn" id="btn-marquee" aria-label="Jeda pengumuman" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5v14M15 5v14"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-motion" aria-label="Matikan gerak" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- gerbang: pintu teks raksasa -->
+    <section class="gate" aria-label="Gerbang depo">
+      <div class="wrap">
+        <p class="kicker" style="display:block;text-align:center;margin:0 auto 1rem;width:fit-content">papan keberangkatan · gudang induk</p>
+        <h1 class="gate-word">DEPO <span class="num">32</span></h1>
+        <p class="gate-sub">Stock opname warung &amp; UMKM — <span class="hand">tanpa kertas, tanpa ngarang.</span></p>
+      </div>
+      <div class="gate-cue" aria-hidden="true"><span class="arrow">↓</span> geser ke bawah — masuk depo</div>
+    </section>
+
+    <!-- pengumuman peron: 2 band marquee -->
+    <div class="peron" aria-label="Pengumuman peron">
+      <div class="marquee-band" data-dir="fwd">
+        <div class="mq-chunk">
+          {announcements.map((a) => <Icon name={a.icon} /> <span><Fragment set:html={a.text} /> <span class="t">· {a.time}</span></span>)}
+        </div>
+      </div>
+    </div>
+    <div class="peron rev" aria-hidden="true">
+      <div class="marquee-band" data-dir="rev">
+        <div class="mq-chunk">
+          {announcements2.map((a) => <Icon name={a.icon} /> <span><Fragment set:html={a.text} /> <span class="t">· {a.time}</span></span>)}
+        </div>
+      </div>
+    </div>
+
+    <div class="rail-wrap" aria-hidden="true"><div class="rail-div"></div></div>
+
+    <!-- papan keberangkatan = tool opname -->
+    <section class="board-head wrap" id="papan" aria-label="Papan opname" tabindex="-1">
+      <span class="kicker">jalur 1–9 · keberangkatan gerbong</span>
+      <h2 class="section-title" data-scramble>Papan Keberangkatan</h2>
+      <p class="lede">Tiap gerbong = satu barang. Kolom <b>tercatat</b> itu jadwal di bukumu; kolom <b>fisik</b> itu hasil hitunganmu di gudang. Kalau beda, mandor teriak.</p>
+
+      <div class="board-tools">
+        <label class="field search">
+          <Icon name="magnifier" />
+          <input id="q" type="search" placeholder="Cari gerbong…" aria-label="Cari gerbong" autocomplete="off" />
+        </label>
+        <label class="field">
+          <select id="f-status" aria-label="Saring status">
+            <option value="semua">Semua status</option>
+            <option value="cocok">Cocok</option>
+            <option value="selisih">Selisih</option>
+            <option value="menipis">Menipis</option>
+            <option value="habis">Habis</option>
+            <option value="belum">Belum hitung</option>
+          </select>
+        </label>
+        <label class="field">
+          <select id="f-sort" aria-label="Urutkan">
+            <option value="nama">Urut: nama</option>
+            <option value="selisih">Urut: selisih terbesar</option>
+            <option value="nilai">Urut: nilai selisih</option>
+          </select>
+        </label>
+        <button class="btn btn-primary" id="btn-tambah">
+          <Icon name="plus-circle" />
+          Daftarkan gerbong
+        </button>
+      </div>
+
+      <div class="bento" id="bento" aria-live="polite">{ssrItems.map((it, i) => <Fragment set:html={cardHTML(it, i)} />)}</div>
+
+      <div class="empty-depo" id="empty-state" hidden>
+        <Icon name="shelf" />
+        <h3 style="font-family:var(--aw-font-heading);color:var(--text);margin:0 0 .4rem">Depo masih kosong.</h3>
+        <p>Daftarkan gerbong pertama, atau muat 18 gerbong contoh biar langsung bisa dicoba. Angka &amp; harga contoh — ganti dengan notamu.</p>
+        <button class="btn btn-ghost" id="btn-contoh">Muat 18 gerbong contoh</button>
+      </div>
+    </section>
+
+    <div class="rail-wrap" aria-hidden="true"><div class="rail-div"></div></div>
+
+    <!-- meja mandor -->
+    <section class="desk wrap" id="meja" aria-label="Meja mandor" tabindex="-1">
+      <span class="kicker">meja mandor</span>
+      <h2 class="section-title" data-scramble>Rekap Depo</h2>
+      <p class="lede">Angka di bawah ini dihitung otomatis dari papan. <span class="hand" style="font-family:var(--font-playwrite,cursive);color:var(--pop)">Tidak ada yang dikarang.</span></p>
+      <div class="desk-grid">
+        <div class="stat"><div class="k">gerbong</div><div class="v" id="st-total">0</div></div>
+        <div class="stat"><div class="k">cocok</div><div class="v good" id="st-cocok">0</div></div>
+        <div class="stat"><div class="k">selisih + menipis + habis</div><div class="v bad" id="st-selisih">0</div></div>
+        <div class="stat"><div class="k">nilai selisih</div><div class="v" id="st-nilai">Rp0</div></div>
+      </div>
+      <div class="desk-actions">
+        <button class="btn btn-primary" id="btn-tutup">
+          <Icon name="check-stamp" />
+          Tutup buku
+        </button>
+        <button class="btn btn-ghost" id="btn-wa">Salin ringkasan WA</button>
+        <button class="btn btn-ghost" id="btn-share"><Icon name="share-link" />Bagikan tautan gudang</button>
+        <button class="btn btn-ghost" id="btn-csv"><Icon name="download" />Ekspor CSV</button>
+        <button class="btn btn-ghost" id="btn-json"><Icon name="download" />Ekspor JSON</button>
+        <button class="btn btn-ghost" id="btn-print"><Icon name="printer" />Cetak laporan</button>
+      </div>
+    </section>
+
+    <div class="rail-wrap" aria-hidden="true"><div class="rail-div"></div></div>
+
+    <!-- arsip sesi -->
+    <section class="wrap" id="riwayat" aria-label="Arsip sesi" tabindex="-1" style="padding-block:3rem 1rem">
+      <span class="kicker">arsip depo</span>
+      <h2 class="section-title" data-scramble>Riwayat Tutup Buku</h2>
+      <p class="lede">Setiap tutup buku tersimpan di peramban ini. Maksimal 20 sesi terakhir.</p>
+      <div class="riwayat-list" id="riwayat-list"></div>
+      <p class="lede" id="riwayat-empty" style="margin-top:1rem">Belum ada sesi. Tutup buku dulu biar mandor catat.</p>
+    </section>
+  </main>
+
+  <footer class="depot-footer">
+    <div class="wrap">
+      <span><b style="color:var(--text)">DEPO 32</b> · papan keberangkatan untuk stok gudangmu</span>
+      <span class="hand">dicap mandor, bukan dikarang.</span>
+      <span>100% offline · datamu di perambanmu</span>
+    </div>
+  </footer>
+
+  <!-- dialog tambah/ubah gerbong -->
+  <dialog class="gerbong-dialog" id="dlg-gerbong" aria-labelledby="dlg-title">
+    <form id="form-gerbong" method="dialog" novalidate>
+      <div class="dlg-head">
+        <h3 id="dlg-title">Daftarkan gerbong baru</h3>
+        <button class="mini-btn" id="dlg-cancel" type="button" aria-label="Tutup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="dlg-body">
+        <div class="cell full" style="grid-column:1/-1">
+          <label for="f-nama">nama barang</label>
+          <input id="f-nama" name="nama" maxlength="80" placeholder="cth: Indomie Goreng" autocomplete="off" />
+        </div>
+        <div class="cell"><label for="f-satuan">satuan</label><input id="f-satuan" name="satuan" maxlength="20" placeholder="dus / pcs / kg" autocomplete="off" /></div>
+        <div class="cell"><label for="f-modal">harga modal (Rp)</label><input id="f-modal" name="modal" inputmode="decimal" placeholder="112000" autocomplete="off" /></div>
+        <div class="cell"><label for="f-tercatat">stok tercatat</label><input id="f-tercatat" name="tercatat" inputmode="decimal" placeholder="40" autocomplete="off" /></div>
+        <div class="cell"><label for="f-fisik">stok fisik</label><input id="f-fisik" name="fisik" inputmode="decimal" placeholder="kosongkan kalau belum hitung" autocomplete="off" /></div>
+        <div class="cell" style="grid-column:1/-1"><label for="f-ambang">ambang menipis</label><input id="f-ambang" name="ambang" inputmode="decimal" placeholder="5" autocomplete="off" /></div>
+        <p class="form-err" id="form-err" hidden></p>
+      </div>
+      <div class="dlg-foot">
+        <button class="btn btn-ghost" id="dlg-cancel2" type="button">Batal</button>
+        <button class="btn btn-primary" type="submit">Masuk jalur</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- stempel tutup buku -->
+  <div class="stamp-layer" id="stamp-layer" hidden role="dialog" aria-label="Hasil tutup buku">
+    <div>
+      <div class="stamp cocok" id="stamp">COCOK</div>
+      <p class="stamp-sub" id="stamp-sub"></p>
+      <div style="text-align:center;margin-top:1rem"><button class="btn btn-ghost" id="btn-stamp-ok">Kembali ke depo</button></div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="curtain" id="curtain" aria-hidden="true"></div>
+
+  <script>
+    document.getElementById('dlg-cancel2')?.addEventListener('click', () => {
+      (document.getElementById('dlg-gerbong') as HTMLDialogElement)?.close();
+    });
+  </script>
+  <script>import('../scripts/depo/app.js');</script>
+</Layout>

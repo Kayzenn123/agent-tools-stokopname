@@ -1,0 +1,19 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import '~/assets/styles/depo.css';
+import { getHomePermalink } from '~/utils/permalinks';
+
+const title = `Jalur buntu — Depo 32`;
+---
+
+<Layout metadata={{ title }}>
+  <main class="wrap" style="min-height:80dvh;display:grid;place-items:center;text-align:center;padding:4rem 0">
+    <div>
+      <span class="kicker">sinyal merah</span>
+      <h1 class="board-title" style="font-size:clamp(4rem,18vw,10rem)">404</h1>
+      <p class="lede" style="margin-inline:auto">Jalur ini buntu. Gerbong yang kamu cari tidak ada di depo ini — mungkin salah peron.</p>
+      <p class="hand-note" style="font-size:1.1rem">balik ke papan, jangan nyasar.</p>
+      <div style="margin-top:1.5rem"><a class="btn btn-primary" href={getHomePermalink()}>Kembali ke Depo 32</a></div>
+    </div>
+  </main>
+</Layout>
