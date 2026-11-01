@@ -1,0 +1,1 @@
+function e(){return!matchMedia(`(prefers-reduced-motion: reduce)`).matches&&!document.body.classList.contains(`motion-off`)}export{e as t};

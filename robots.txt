@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://agent-tools-stokopname.vercel.app/sitemap-index.xml

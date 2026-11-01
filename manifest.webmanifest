@@ -1,0 +1,13 @@
+{
+  "name": "StokOpname — Depo 32",
+  "short_name": "Depo 32",
+  "description": "Stock opname warung & UMKM offline: papan keberangkatan untuk stok gudangmu.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#241a12",
+  "theme_color": "#241a12",
+  "lang": "id",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
